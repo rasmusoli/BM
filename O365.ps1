@@ -3,13 +3,13 @@ Start-Transcript -Path "$env:windir\logs\software\O365-Log.txt"
 
 ## Declare Arguments
 $ArgsO365Install = "/Configure .\Install.xml"
-#$ArgsO365Uninstall = "/Configure .\Uninstall.xml"
 
-## Create Temp Directory
+## create folder for O365
 $Folder = "$env:windir\temp\o365"
-New-Item -ItemType Directory -Path $folder
-Copy-Item -Path "$psscriptroot\Install.xml" -Destination $folder
-#Copy-Item -Path ".\UnInstall.xml" -Destination $folder
+New-Item -ItemType Directory -Path $folder -verbose
+
+## Copy .xml contents to folder
+Copy-Item -Path "$psscriptroot\Install.xml" -Destination $folder -Verbose
 
 ## Download ODT Setup
 $ProgressPreference = 'SilentlyContinue'
@@ -21,7 +21,7 @@ function Get-ODTUri {
  
     $url = "https://www.microsoft.com/en-us/download/confirmation.aspx?id=49117"
     try {
-        $response = Invoke-WebRequest -UseBasicParsing -Uri $url -ErrorAction SilentlyContinue
+        $response = Invoke-WebRequest -UseBasicParsing -Uri $url -ErrorAction SilentlyContinue -verbose
     }
     catch {
         Throw "Failed to connect to ODT: $url with error $_."
@@ -33,20 +33,36 @@ function Get-ODTUri {
     }
 }
 
-$URL = $(Get-ODTUri)
-Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $folder\ODT.EXE
-Set-Location $Folder
+## Attempt to download the ODT files
+try {
+    $URL = $(Get-ODTUri)
+    Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $folder\ODT.EXE -Verbose
+} catch {
+    Write-Host "Failed to download ODT file: $_" -ForegroundColor Red
+    exit 1
+}
+
+Set-Location $Folder -Verbose
 
 ## Extract Installer
-Start-Process .\ODT.exe -ArgumentList "/QUIET /EXTRACT:.\" -Wait
+try {
+    Start-Process .\ODT.exe -ArgumentList "/QUIET /EXTRACT:.\" -Wait -Verbose
+} catch {
+    Write-Host "Failed to extract installer: $_" -ForegroundColor Red
+    exit 1
+}
 
 ## Start Installation
-#Start-process .\setup.exe -Argumentlist $ArgsO365Uninstall -wait
-Start-process .\setup.exe -Argumentlist $ArgsO365Install -wait
+try {
+    Start-process .\setup.exe -Argumentlist $ArgsO365Install -wait -Verbose
+} catch {
+    Write-Host "Failed to start installation: $_" -ForegroundColor Red
+    exit 1
+}
 
 ## Cleanup
-Set-Location C:\
-Remove-Item $Folder -Recurse -Force
+Set-Location $env:windur -Verbose
+Remove-Item $Folder -Recurse -Force -Verbose
 
-## Stop Logning
+# stop logging
 Stop-Transcript
