@@ -1,4 +1,15 @@
-﻿$logFile = "$env:SystemDrive\Logs\Software\DanskSprogPakke.log"
+﻿## create log file
+
+$logFile = "$env:SystemRoot\Logs\Software\DanskSprogPakke.log"
+
+# Check if the directory exists, if not, create it
+if(!(Test-Path -Path "$env:SystemRoot\Logs\Software\")) {
+    New-Item -ItemType Directory -Force -Path "$env:SystemRoot\Logs\Software\"
+}
+
+# Create the log file
+New-Item -ItemType File -Path $logFile -Force
+
 
 Write-Host "Installerer Dansk sprogflade" -ForegroundColor Red
 Add-Content -Path $logFile -Value "Installerer Dansk sprogflade"
