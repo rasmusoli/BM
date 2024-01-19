@@ -61,7 +61,7 @@ try {
 }
 
 ## Cleanup
-Set-Location $env:windur -Verbose
+Set-Location $env:windir -Verbose
 Remove-Item $Folder -Recurse -Force -Verbose
 
 # stop logging
