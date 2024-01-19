@@ -15,4 +15,6 @@ Invoke-WebRequest -Uri 'https://codeload.github.com/rasmusoli/BM/zip/refs/heads/
 
 # Extract the zip file
 Expand-Archive -Path "$env:SystemDrive\Temp\BM-main.zip" -DestinationPath "$env:SystemRoot\Temp\" -verbose
-Start-Process -file $env:SystemRoot\Temp\BM-main\BM-Install.cmd
+
+# Run the PowerShell script
+Start-Process -FilePath "$env:SystemDrive\Temp\BM-main\BM-Install.cmd"
