@@ -18,7 +18,7 @@ Make sure to run this script with administrative privileges to avoid permission 
 #>
 
 ## Start Logging
-Start-Transcript -Path "$env:SystemDrive\Logs\Software\GetHash.log" -NoClobber -Append
+Start-Transcript -Path "$env:Windir\Logs\Software\GetHash.log" -NoClobber -Append
 
 try {
     ## Install NuGet Package Provider
