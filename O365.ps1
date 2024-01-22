@@ -63,7 +63,7 @@ try {
     $URL = $(Get-ODTUri)
     Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $folder\ODT.EXE -Verbose
 } catch {
-    Write-Host "Failed to download ODT file: $_" -ForegroundColor Red
+    Write-Host "Failed to download ODT file" -ForegroundColor Red
     Handle-Error -errorMessage "Failed to download ODT file"
     exit 1
 }
@@ -75,7 +75,7 @@ try {
     Start-Process .\ODT.exe -ArgumentList "/QUIET /EXTRACT:.\" -Wait -Verbose
 } catch {
     Handle-Error -errorMessage "Failed to extract installer"
-    Write-Host "Failed to extract installer: $_" -ForegroundColor Red
+    Write-Host "Failed to extract installer:" -ForegroundColor Red
     exit 1
 }
 
@@ -84,7 +84,7 @@ try {
     Start-process .\setup.exe -Argumentlist $ArgsO365Install -wait -Verbose
 } catch {
     Handle-Error -errorMessage "Failed to start installation"
-    Write-Host "Failed to start installation: $_" -ForegroundColor Red
+    Write-Host "Failed to start installation" -ForegroundColor Red
     exit 1
 }
 
