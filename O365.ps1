@@ -1,3 +1,27 @@
+function Handle-Error {
+    param(
+        [string]$errorMessage = "An error occurred - Please check the log file for more information located at c:\windows\logs\software\"
+    )
+
+    [console]::beep()
+    [console]::beep()
+    [console]::beep()
+
+    # Make the script speak
+    Add-Type -TypeDefinition '
+    using System.Speech.Synthesis;
+    public class Speaker {
+        public static void Speak(string text) {
+            using (SpeechSynthesizer synth = new SpeechSynthesizer()) {
+                synth.Speak(text);
+            }
+        }
+    }' -ReferencedAssemblies 'System.Speech'
+    [Speaker]::Speak($errorMessage)
+}
+
+
+
 ## Start Logging
 Start-Transcript -Path "$env:windir\logs\software\O365-Log.txt"
 
@@ -24,6 +48,7 @@ function Get-ODTUri {
         $response = Invoke-WebRequest -UseBasicParsing -Uri $url -ErrorAction SilentlyContinue -verbose
     }
     catch {
+        Handle-Error -errorMessage "Failed to connect to ODT: $url with error $_."
         Throw "Failed to connect to ODT: $url with error $_."
         Break
     }
@@ -39,6 +64,7 @@ try {
     Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $folder\ODT.EXE -Verbose
 } catch {
     Write-Host "Failed to download ODT file: $_" -ForegroundColor Red
+    Handle-Error -errorMessage "Failed to download ODT file"
     exit 1
 }
 
@@ -48,6 +74,7 @@ Set-Location $Folder -Verbose
 try {
     Start-Process .\ODT.exe -ArgumentList "/QUIET /EXTRACT:.\" -Wait -Verbose
 } catch {
+    Handle-Error -errorMessage "Failed to extract installer"
     Write-Host "Failed to extract installer: $_" -ForegroundColor Red
     exit 1
 }
@@ -56,13 +83,20 @@ try {
 try {
     Start-process .\setup.exe -Argumentlist $ArgsO365Install -wait -Verbose
 } catch {
+    Handle-Error -errorMessage "Failed to start installation"
     Write-Host "Failed to start installation: $_" -ForegroundColor Red
     exit 1
 }
 
 ## Cleanup
 Set-Location $env:windir -Verbose
-Remove-Item $Folder -Recurse -Force -Verbose
+try {
+    Remove-Item $Folder -Recurse -Force -Verbose -ErrorAction Stop
+} catch {
+    Write-Host "Failed to remove O365 Folder" -ForegroundColor Red
+    Handle-Error -errorMessage "Failed to remove O365 Folder"
+    exit 1
+}
 
 # stop logging
 Stop-Transcript
