@@ -19,5 +19,3 @@ if %errorlevel% neq 0 (
     echo PowerShell script exited with error. Terminating batch process.
     exit /b %errorlevel%
 )
-powershell.exe -Command "Write-Host 'Genstarter maskinen om 60 sekunder' -Foregroundcolor Red"
-shutdown /r /t 60
