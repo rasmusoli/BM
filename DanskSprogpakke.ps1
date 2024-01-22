@@ -1,4 +1,24 @@
-﻿## create log file
+﻿function Handle-Error {
+    param(
+        [string]$errorMessage = "An error occurred - Please check the log file for more information located at c:\windows\logs\software\"
+    )
+
+    [console]::beep()
+    [console]::beep()
+    [console]::beep()
+
+    # Make the script speak
+    Add-Type -TypeDefinition '
+    using System.Speech.Synthesis;
+    public class Speaker {
+        public static void Speak(string text) {
+            using (SpeechSynthesizer synth = new SpeechSynthesizer()) {
+                synth.Speak(text);
+            }
+        }
+    }' -ReferencedAssemblies 'System.Speech'
+    [Speaker]::Speak($errorMessage)
+}
 
 # Define the path of the log file
 $logFile = "$env:SystemRoot\Logs\Software\DanskSprogPakke.log"
@@ -26,6 +46,7 @@ try {
     $errorMessage = "Error installing language: $_"
     Write-Host $errorMessage -ForegroundColor Red
     Add-Content -Path $logFile -Value $errorMessage
+    Handle-Error -errorMessage $errorMessage
     # Exit the script with a non-zero status code to indicate that an error occurred
     exit 1
 }
@@ -47,6 +68,7 @@ try {
     $errorMessage = "Error setting UI language override: $_"
     Write-Host $errorMessage -ForegroundColor Red
     Add-Content -Path $logFile -Value $errorMessage
+    Handle-Error -errorMessage $errorMessage
     # Exit the script with a non-zero status code to indicate that an error occurred
     exit 1
 }
@@ -64,6 +86,7 @@ try {
     $errorMessage = "Error setting user language list: $_"
     Write-Host $errorMessage -ForegroundColor Red
     Add-Content -Path $logFile -Value $errorMessage
+    Handle-Error -errorMessage $errorMessage
     # Exit the script with a non-zero status code to indicate that an error occurred
     exit 1
 }
