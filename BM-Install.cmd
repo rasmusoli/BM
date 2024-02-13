@@ -19,3 +19,9 @@ if %errorlevel% neq 0 (
     echo PowerShell script exited with error. Terminating batch process.
     exit /b %errorlevel%
 )
+
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~DeploymentDone.ps1"
+if %errorlevel% neq 0 (
+    echo PowerShell script exited with error. Terminating batch process.
+    exit /b %errorlevel%
+)
